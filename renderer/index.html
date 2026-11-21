@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'none'; object-src 'none'">
+  <title>Aster</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<aside>
+  <div class="brand"><span class="brand-orb">✳</span><div><b>ASTER</b><small>Desktop assistant</small></div></div>
+  <nav>
+    <button class="nav active" data-page="assistant">◫ <span>Assistant</span></button>
+    <button class="nav" data-page="lessons">◇ <span>Visual lessons</span></button>
+    <button class="nav" data-page="recordings">◉ <span>Recordings</span></button>
+    <button class="nav" data-page="settings">⚙ <span>Settings</span></button>
+  </nav>
+  <button id="account-side" class="account-side">⌁ <span><b>ChatGPT</b><small id="account-side-text">Browser mode</small></span></button>
+</aside>
+<main>
+  <header><span>Workspace / <b id="page-title">Assistant</b></span><div><button id="record-stop" class="danger" hidden>● <span id="timer">00:00</span> Stop</button><button id="float">▣ Float</button></div></header>
+
+  <section id="assistant" class="page">
+    <div class="heading"><div><h1>Meet Aster<span>.</span></h1><p>Ask a question, learn visually, or tell Aster what to do.</p></div><button id="new-chat">＋ New chat</button></div>
+    <div class="assistant-grid">
+      <article class="panel conversation">
+        <div class="panel-head"><b>▤ Conversation</b><select id="mode"><option value="balanced">Balanced</option><option value="inventive">Inventive</option><option value="wild">Wild ideas</option><option value="teacher">Visual tutor</option></select></div>
+        <div id="messages" class="messages"></div>
+        <form id="composer"><textarea id="prompt" maxlength="16000" placeholder="Message Aster or give a command…"></textarea><div class="compose-row"><small>Enter to send · Shift+Enter for a new line</small><button id="send" class="primary">↑</button><button id="stop-chat" class="primary" type="button" hidden>■</button></div></form>
+      </article>
+      <div class="right-column">
+        <article class="panel companion"><div class="companion-head"><b>Companion</b><span>● <b id="status">Standby</b></span></div><div class="energy"><div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div><div class="core"></div></div><small id="caption">Ready when you are</small></article>
+        <h2>Quick actions</h2>
+        <div class="quick-grid">
+          <button data-action="lesson">◇ <span><b>Visual lesson</b><small>See an example</small></span></button>
+          <button data-action="app">▦ <span><b>Open an app</b><small>Launch locally</small></span></button>
+          <button data-action="record">◉ <span><b>Record</b><small>Screen or mic</small></span></button>
+          <button data-action="edit">▤ <span><b>Edit a file</b><small>Review then save</small></span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="lessons" class="page" hidden>
+    <div class="heading"><div><h1>Visual lessons<span>.</span></h1><p>A diagram, worked example, and quick check.</p></div><button id="ask-lesson">＋ Ask for a lesson</button></div>
+    <article class="panel lesson">
+      <h2>How sound waves work</h2><p>Sound is a moving pattern of pressure. The air vibrates locally while the pattern travels outward.</p>
+      <div class="flow"><div><b>1. Source vibrates</b><small>A speaker cone moves.</small></div><i>→</i><div><b>2. Air compresses</b><small>Molecules crowd and spread.</small></div><i>→</i><div><b>3. Pattern travels</b><small>Each layer nudges the next.</small></div><i>→</i><div><b>4. Ear receives it</b><small>Your eardrum vibrates.</small></div></div>
+    </article>
+    <div class="lesson-grid"><article class="panel lesson"><h2>Worked example</h2><p>A speaker playing 440 Hz vibrates 440 times each second. Double it to 880 Hz and the note sounds one octave higher.</p></article><article class="panel lesson"><h2>Check your understanding</h2><p>What normally travels from the speaker to your ear?</p><div id="quiz"><button data-correct="false">Air molecules from the speaker</button><button data-correct="true">A pattern of pressure</button><button data-correct="false">Only the speaker cone</button></div><p id="quiz-answer"></p></article></div>
+  </section>
+
+  <section id="recordings" class="page" hidden>
+    <div class="heading"><div><h1>Recordings<span>.</span></h1><p>Clips saved under Videos → Aster Recordings.</p></div><button id="open-recordings">Open folder</button></div>
+    <article class="panel"><div class="panel-head"><b>Saved clips</b><button data-action="record">＋ New recording</button></div><div id="recording-list"></div></article>
+  </section>
+
+  <section id="settings" class="page" hidden>
+    <div class="heading"><div><h1>Settings<span>.</span></h1><p>Connect ChatGPT and tune Aster’s behavior.</p></div></div>
+    <div class="settings-grid">
+      <article class="panel card"><h2>ChatGPT</h2><p id="account-summary">Use regular ChatGPT in your browser or connect an eligible personal plan.</p><div id="account-actions"></div><label id="model-wrap" hidden>Model<select id="model"></select></label><button id="open-chatgpt">Open regular ChatGPT ↗</button></article>
+      <article class="panel card"><h2>Personality</h2><label>Preferences<textarea id="preferences" maxlength="4000" placeholder="Example: Use simple analogies when teaching."></textarea></label><label class="check"><input id="speak" type="checkbox"> Read replies with a system voice</label><button id="save-settings">Save preferences</button></article>
+      <article class="panel card"><h2>Desktop commands</h2><p>Try “open calculator,” “open files,” “search the web for…,” “record my screen,” or “edit a file.”</p><p>Press Ctrl+Shift+Space to focus Aster.</p></article>
+      <article class="panel card"><h2>Privacy</h2><p>App controls and recordings run locally. Chat messages go to ChatGPT only after you connect a plan or open ChatGPT in your browser.</p></article>
+    </div>
+  </section>
+</main>
+
+<dialog id="dialog"><div class="dialog-head"><h2 id="dialog-title"></h2><button id="dialog-close">×</button></div><div id="dialog-body"></div></dialog>
+<div id="toast" hidden></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

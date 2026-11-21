@@ -1,0 +1,17 @@
+{
+  "name": "aster-desktop",
+  "productName": "Aster",
+  "version": "1.0.0",
+  "description": "A personal desktop assistant with visual teaching and local controls",
+  "private": true,
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "check": "node --check main.js && node --check preload.cjs && node --check renderer/app.js"
+  },
+  "engines": { "node": ">=22.12" },
+  "dependencies": { "@siwc/local": "file:vendor/siwc" },
+  "devDependencies": { "electron": "45.4.1" },
+  "license": "UNLICENSED"
+}
