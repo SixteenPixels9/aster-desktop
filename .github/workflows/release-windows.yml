@@ -20,7 +20,7 @@ jobs:
       - name: Install and verify
         shell: pwsh
         run: |
-          npm ci
+          npm ci --include=dev
           npm run check
 
       - name: Assemble portable Aster
