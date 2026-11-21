@@ -1,0 +1,65 @@
+name: Build Windows release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install and verify
+        shell: pwsh
+        run: |
+          npm ci
+          npm run check
+
+      - name: Assemble portable Aster
+        shell: pwsh
+        run: |
+          $out = Join-Path $PWD 'dist\Aster'
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          Copy-Item -Recurse -Force 'node_modules\electron\dist\*' $out
+          Rename-Item (Join-Path $out 'electron.exe') 'Aster.exe'
+          Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $out 'resources\default_app.asar')
+
+          $app = Join-Path $out 'resources\app'
+          New-Item -ItemType Directory -Force -Path $app | Out-Null
+          Copy-Item package.json,package-lock.json,main.js,preload.cjs,README.md -Destination $app
+          Copy-Item -Recurse renderer,vendor -Destination $app
+          Push-Location $app
+          npm ci --omit=dev
+          Pop-Location
+
+          Get-ChildItem (Join-Path $out 'locales') -Filter '*.pak' |
+            Where-Object Name -ne 'en-US.pak' |
+            Remove-Item -Force
+
+          Compress-Archive -Path (Join-Path $PWD 'dist\Aster') -DestinationPath (Join-Path $PWD 'Aster-Windows-x64.zip') -CompressionLevel Optimal
+
+      - name: Publish GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $sha = (Get-FileHash 'Aster-Windows-x64.zip' -Algorithm SHA256).Hash.ToLower()
+          @"
+          Aster v1.0.0 for Windows
+
+          Download ``Aster-Windows-x64.zip``, extract the whole ZIP, open the ``Aster`` folder, and double-click ``Aster.exe``.
+
+          Windows may show a SmartScreen warning because this first release is not code-signed. Choose **More info**, then **Run anyway** only if this is the expected repository.
+
+          SHA-256: ``$sha``
+          "@ | Set-Content release-notes.md
+          gh release delete v1.0.0 --cleanup-tag --yes 2>$null
+          gh release create v1.0.0 Aster-Windows-x64.zip --title 'Aster v1.0.0' --notes-file release-notes.md
