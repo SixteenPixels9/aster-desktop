@@ -28,7 +28,8 @@ jobs:
         run: |
           $out = Join-Path $PWD 'dist\Aster'
           New-Item -ItemType Directory -Force -Path $out | Out-Null
-          Copy-Item -Recurse -Force 'node_modules\electron\dist\*' $out
+          Invoke-WebRequest 'https://github.com/electron/electron/releases/download/v45.4.1/electron-v45.4.1-win32-x64.zip' -OutFile 'electron.zip'
+          Expand-Archive 'electron.zip' -DestinationPath $out
           Rename-Item (Join-Path $out 'electron.exe') 'Aster.exe'
           Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $out 'resources\default_app.asar')
 
