@@ -39,6 +39,11 @@ jobs:
           Copy-Item -Recurse renderer,vendor -Destination $app
           Push-Location $app
           npm ci --omit=dev
+          if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed' }
+          # npm links file: packages; ZIPs must contain real files, not junctions.
+          $sdk = Join-Path $app 'node_modules\@siwc\local'
+          if (Test-Path $sdk) { (Get-Item $sdk).Delete() }
+          Copy-Item -Recurse (Join-Path $app 'vendor\siwc') $sdk
           Pop-Location
 
           Get-ChildItem (Join-Path $out 'locales') -Filter '*.pak' |
@@ -47,6 +52,15 @@ jobs:
 
           Compress-Archive -Path (Join-Path $PWD 'dist\Aster') -DestinationPath (Join-Path $PWD 'Aster-Windows-x64.zip') -CompressionLevel Optimal
 
+      - name: Verify extracted download
+        shell: pwsh
+        run: |
+          Expand-Archive Aster-Windows-x64.zip -DestinationPath verify
+          Push-Location verify\Aster\resources\app
+          node --input-type=module -e "import { createChatGPT } from '@siwc/local'; if (typeof createChatGPT !== 'function') process.exit(1)"
+          if ($LASTEXITCODE -ne 0) { throw 'Extracted package cannot load ChatGPT runtime' }
+          Pop-Location
+
       - name: Publish GitHub release
         shell: pwsh
         env:
@@ -54,7 +68,7 @@ jobs:
         run: |
           $sha = (Get-FileHash 'Aster-Windows-x64.zip' -Algorithm SHA256).Hash.ToLower()
           @"
-          Aster v1.0.0 for Windows
+          Aster v1.0.1 for Windows — fixes the missing ChatGPT package startup error.
 
           Download ``Aster-Windows-x64.zip``, extract the whole ZIP, open the ``Aster`` folder, and double-click ``Aster.exe``.
 
@@ -62,5 +76,4 @@ jobs:
 
           SHA-256: ``$sha``
           "@ | Set-Content release-notes.md
-          gh release delete v1.0.0 --cleanup-tag --yes 2>$null
-          gh release create v1.0.0 Aster-Windows-x64.zip --title 'Aster v1.0.0' --notes-file release-notes.md
+          gh release create v1.0.1 Aster-Windows-x64.zip --title 'Aster v1.0.1 — startup fix' --notes-file release-notes.md
